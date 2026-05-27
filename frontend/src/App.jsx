@@ -7,6 +7,9 @@ import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
 // Pages
+import Landing from './pages/Landing';
+import Home from './pages/Home';
+import About from './pages/About';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import BlogList from './pages/BlogList';
@@ -19,11 +22,23 @@ function AppContent() {
       <Navbar />
       <main className="main-content">
         <Routes>
-          {/* Public Authentication Routes */}
+          {/* Public Views */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected Normal User Routes */}
+          {/* Protected Member Home */}
+          <Route 
+            path="/home" 
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            } 
+          />
+
+          {/* Protected Blog Views */}
           <Route 
             path="/blogs" 
             element={
@@ -41,7 +56,7 @@ function AppContent() {
             } 
           />
 
-          {/* Protected Admin User Routes */}
+          {/* Protected Admin Control Panel */}
           <Route 
             path="/dashboard" 
             element={
@@ -51,8 +66,8 @@ function AppContent() {
             } 
           />
 
-          {/* Catch-all Redirect */}
-          <Route path="*" element={<Navigate to="/blogs" replace />} />
+          {/* Default Catch-all Redirect to Landing */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

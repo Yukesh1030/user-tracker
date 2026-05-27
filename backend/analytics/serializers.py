@@ -35,4 +35,4 @@ class UserActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserActivity
-        fields = ('id', 'user', 'current_page', 'latitude', 'longitude', 'session_duration', 'timestamp')
+        fields = ('id', 'user', 'current_page', 'latitude', 'longitude', 'location_display', 'session_duration', 'timestamp')

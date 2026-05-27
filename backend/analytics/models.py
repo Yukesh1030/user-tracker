@@ -24,6 +24,7 @@ class UserActivity(models.Model):
     current_page = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
+    location_display = models.CharField(max_length=255, null=True, blank=True)
     session_duration = models.IntegerField(help_text="Duration spent on page in seconds")
     timestamp = models.DateTimeField(auto_now_add=True)
 

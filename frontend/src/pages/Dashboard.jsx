@@ -240,7 +240,7 @@ const Dashboard = () => {
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               />
               {locations.map((loc, idx) => (
                 <Marker key={idx} position={[loc.latitude, loc.longitude]}>
@@ -301,7 +301,7 @@ const Dashboard = () => {
                 <th>User</th>
                 <th>Page Path</th>
                 <th>Stay Duration</th>
-                <th>Geolocation (Lat/Lng)</th>
+                <th>Location</th>
                 <th>Timestamp</th>
               </tr>
             </thead>
@@ -328,13 +328,13 @@ const Dashboard = () => {
                       </span>
                     </td>
                     <td>
-                      {log.latitude !== null ? (
+                      {log.location === "Blocked" ? (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Blocked</span>
+                      ) : (
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)' }}>
                           <MapPin size={12} style={{ color: 'var(--accent-secondary)' }} />
-                          {log.latitude.toFixed(4)}, {log.longitude.toFixed(4)}
+                          {log.location}
                         </span>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Blocked</span>
                       )}
                     </td>
                     <td>

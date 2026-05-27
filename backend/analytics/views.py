@@ -3,6 +3,70 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Avg, Count, Sum
 from django.contrib.auth import get_user_model
+import urllib.request
+import json
+
+# State mappings for Indian States
+STATE_MAP = {
+    'Tamil Nadu': 'TN',
+    'Andhra Pradesh': 'AP',
+    'Telangana': 'TS',
+    'Karnataka': 'KA',
+    'Kerala': 'KL',
+    'Maharashtra': 'MH',
+    'Delhi': 'DL',
+    'Uttar Pradesh': 'UP',
+    'Gujarat': 'GJ',
+    'West Bengal': 'WB',
+    'Rajasthan': 'RJ',
+    'Madhya Pradesh': 'MP',
+    'Bihar': 'BR',
+    'Punjab': 'PB',
+    'Haryana': 'HR',
+    'Odisha': 'OD',
+    'Assam': 'AS',
+    'Goa': 'GA',
+}
+
+def get_location_display(lat, lng):
+    if lat is None or lng is None:
+        return "Blocked"
+    url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json&accept-language=en"
+    req = urllib.request.Request(
+        url, 
+        headers={'User-Agent': 'UserTrackerSystem/1.0 (contact: admin@tracker.com)'}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=3) as response:
+            res_data = json.loads(response.read().decode())
+            address = res_data.get('address', {})
+            
+            # Extract city/town/village/county/suburb
+            district = (
+                address.get('city') or 
+                address.get('town') or 
+                address.get('village') or 
+                address.get('county') or 
+                address.get('suburb') or 
+                'Unknown District'
+            )
+            
+            if district.endswith(' District'):
+                district = district[:-9]
+                
+            state = address.get('state', '')
+            state_display = STATE_MAP.get(state, state)
+            
+            country_code = address.get('country_code', '').upper()
+            if country_code == 'IN':
+                country_display = 'IND'
+            else:
+                country_display = country_code or 'Unknown'
+                
+            return f"{district}, {state_display}, {country_display}"
+    except Exception as e:
+        print(f"Error reverse geocoding {lat},{lng}: {e}")
+        return f"{lat:.4f}, {lng:.4f}"
 
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
@@ -77,6 +141,12 @@ class TrackActivityView(APIView):
 
     def post(self, request):
         data = request.data.copy()
+        
+        # Look up and set the location display name
+        lat = data.get('latitude')
+        lng = data.get('longitude')
+        data['location_display'] = get_location_display(lat, lng)
+        
         serializer = UserActivitySerializer(data=data)
         if serializer.is_valid():
             # Automatically associate the logged-in user
@@ -155,6 +225,7 @@ class AnalyticsDashboardView(APIView):
                 "duration": act.session_duration,
                 "latitude": act.latitude,
                 "longitude": act.longitude,
+                "location": act.location_display or ("Blocked" if act.latitude is None else f"{act.latitude:.4f}, {act.longitude:.4f}"),
                 "timestamp": act.timestamp.isoformat()
             })
 
